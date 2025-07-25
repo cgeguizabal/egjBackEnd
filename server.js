@@ -23,6 +23,8 @@ app.use("/", healthRoutes);
 app.use("/api/user", userRouter);
 
 //dev enviroment
+/*
 const PORT = process.env.PORT || 3000;
 
-app.listen(PORT, () => console.log(`SERVER IS RUNNING ON PORT ${PORT}`));
+app.listen(PORT, () => console.log(`SERVER IS RUNNING ON PORT ${PORT}`));*/
+export default app;
