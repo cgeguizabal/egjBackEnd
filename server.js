@@ -1,0 +1,28 @@
+import express from "express";
+import cors from "cors";
+import "dotenv/config";
+import healthRoutes from "./routes/health.route.js";
+import { connectDB } from "./configs/db.js";
+
+import { clerkMiddleware } from "@clerk/express";
+import clerkWebhooks from "./controllers/clerkWebhooks.controller.js";
+import userRouter from "./routes/user.route.js";
+
+const app = express();
+
+await connectDB();
+
+app.use(cors());
+app.use(express.json());
+app.use(clerkMiddleware());
+
+app.use("/api/clerk", clerkWebhooks);
+app.use("/", healthRoutes);
+
+//User
+app.use("/api/user", userRouter);
+
+//dev enviroment
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => console.log(`SERVER IS RUNNING ON PORT ${PORT}`));
