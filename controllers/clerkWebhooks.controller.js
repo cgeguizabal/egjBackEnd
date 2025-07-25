@@ -2,6 +2,8 @@ import { Webhook } from "svix";
 import User from "../models/user.model.js";
 import { connectDB } from "../configs/db.js";
 
+// THIS CREATES AND POST NEW USERS, ACTUALLY EVERYTHING IN DELETE AND UPDATE USER
+
 const clerkWebhooks = async (req, res) => {
   try {
     await connectDB();
