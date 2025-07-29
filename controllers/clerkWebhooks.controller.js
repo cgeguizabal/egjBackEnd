@@ -33,10 +33,10 @@ const clerkWebhooks = async (req, res) => {
         await User.create(userData);
         break;
       case "user.updated":
-        await User.findByIdAndUpdate(data.id, userData);
+        await User.findOneAndUpdate({ _id: data.id }, userData);
         break;
       case "user.deleted":
-        await User.findByIdAndDelete(data.id);
+        await User.findOneAndDelete({ _id: data.id });
         break;
       default:
         break;

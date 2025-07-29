@@ -3,7 +3,7 @@ import User from "../models/user.model.js";
 export const protect = async (req, res, next) => {
   try {
     // Clerk stores user ID in req.auth.userId
-    const { userId } = req.auth;
+    const { userId } = req.auth();
 
     if (!userId) {
       return res.status(401).json({
@@ -13,7 +13,7 @@ export const protect = async (req, res, next) => {
     }
 
     // Fetch user from your database
-    const user = await User.findById(userId);
+    const user = await User.findOne({ _id: userId });
 
     if (!user) {
       return res.status(404).json({
