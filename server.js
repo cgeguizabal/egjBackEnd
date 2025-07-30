@@ -8,6 +8,7 @@ import { clerkMiddleware } from "@clerk/express";
 import clerkWebhooks from "./controllers/clerkWebhooks.controller.js";
 import userRouter from "./routes/user.route.js";
 import adminRouter from "./routes/admin.routes.js";
+import tourRouter from "./routes/tour.route.js";
 
 const app = express();
 
@@ -16,8 +17,9 @@ await connectDB();
 app.use(cors());
 app.use(express.json());
 
-app.use("/api/clerk", clerkWebhooks);
-app.use("/", healthRoutes);
+//ENDPOINTS
+app.use("/api/clerk", clerkWebhooks); // ENDPOINT WHICH IS CALLED IN CLERK
+app.use("/", healthRoutes); // ENDPOINT TO CHECK DATABASE CONNECTION
 
 //User
 app.use("/api/v1/user", clerkMiddleware(), userRouter);
@@ -25,9 +27,12 @@ app.use("/api/v1/user", clerkMiddleware(), userRouter);
 //ENDPOINTS FOR ADMIN USAGE
 app.use("/api/v1/users", clerkMiddleware(), adminRouter);
 
+//ENDPOINT TOURS
+app.use("/api/v1/tour", tourRouter);
+
 //dev enviroment
-
 const PORT = process.env.PORT || 3000;
-
 app.listen(PORT, () => console.log(`SERVER IS RUNNING ON PORT ${PORT}`));
+
+//Production enviroment
 // export default app;
