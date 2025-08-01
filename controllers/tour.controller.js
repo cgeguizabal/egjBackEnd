@@ -69,3 +69,38 @@ export const deleteTour = async (req, res) => {
     res.status(500).json({ success: false, message: error.message });
   }
 };
+
+//GETTING TOURS
+
+export const getTours = async (req, res) => {
+  try {
+    const tours = await Tour.find();
+
+    res.status(200).json({
+      success: true,
+      data: tours,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+//Getting Tour by ID
+export const getTourById = async (req, res) => {
+  try {
+    const tour = await Tour.findById(req.params.id);
+
+    res.status(302).json({
+      success: true,
+      data: tour,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
