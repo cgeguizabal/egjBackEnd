@@ -109,7 +109,7 @@ export const getBookingByID = async (req, res) => {
     if (!booking) {
       res.status(401).json({
         success: false,
-        message: "Booking document not found",
+        message: "Booking documents not found",
       });
     }
 
@@ -122,5 +122,54 @@ export const getBookingByID = async (req, res) => {
       success: false,
       error: error.message,
     });
+  }
+};
+
+//UPDATE BOOKING
+
+export const updateBooking = async (req, res) => {
+  try {
+    const booking = await Booking.findByIdAndUpdate(req.params.id, req.body, {
+      new: true,
+    });
+
+    if (!booking) {
+      res.status(401).json({
+        success: false,
+        message: "Booking not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      data: booking,
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
+  }
+};
+
+//UPDATE STATUS WITH STRIPE
+// controllers/bookingController.js
+export const updateBookingPaymentStatus = async (req, res) => {
+  try {
+    const booking = await Booking.findByIdAndUpdate(
+      req.params.id,
+      { isPaid: true },
+      { new: true }
+    );
+
+    if (!booking) {
+      return res
+        .status(404)
+        .json({ success: false, message: "Booking not found" });
+    }
+
+    res.status(200).json({ success: true, data: booking });
+  } catch (error) {
+    res.status(500).json({ success: false, error: error.message });
   }
 };
