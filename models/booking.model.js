@@ -66,6 +66,12 @@ const bookingSchema = new mongoose.Schema(
       default: "Incoming",
     },
     isPaid: { type: Boolean, default: false },
+    expireAt: {
+      type: Date,
+      default: undefined, // no expiration by default, will set on create
+      index: { expires: 0 }, // TTL index to delete when expireAt time is reached
+    },
+
     stripe: {
       depositPaymentIntentId: { type: String },
       balancePaymentIntentId: { type: String },

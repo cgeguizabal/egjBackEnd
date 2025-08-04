@@ -35,6 +35,8 @@ export const createBooking = async (req, res) => {
     const bookingPayment = Math.floor(totalFinalCost * 0.3);
     const balance = totalFinalCost - bookingPayment;
 
+    const expireAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
+    // const expireAt = new Date(Date.now() + 2 * 60 * 1000);//for testing
     const newBooking = new Booking({
       tourist: userId,
       tour,
@@ -48,6 +50,8 @@ export const createBooking = async (req, res) => {
       comments,
       checkIn,
       checkOut,
+      expireAt, // Set TTL date here
+      isPaid: false, // default but explicit
     });
 
     await newBooking.save();
@@ -158,7 +162,7 @@ export const updateBookingPaymentStatus = async (req, res) => {
   try {
     const booking = await Booking.findByIdAndUpdate(
       req.params.id,
-      { isPaid: true },
+      { isPaid: true, $unset: { expireAt: "" } },
       { new: true }
     );
 
@@ -171,5 +175,28 @@ export const updateBookingPaymentStatus = async (req, res) => {
     res.status(200).json({ success: true, data: booking });
   } catch (error) {
     res.status(500).json({ success: false, error: error.message });
+  }
+};
+
+export const deleteBooking = async (req, res) => {
+  try {
+    const booking = await Booking.findByIdAndDelete(req.params.id);
+
+    if (!booking) {
+      res.status(401).json({
+        success: false,
+        message: "Booking not found",
+      });
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Booking has been deleted successfully",
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      error: error.message,
+    });
   }
 };
