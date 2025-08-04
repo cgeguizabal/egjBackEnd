@@ -1,11 +1,16 @@
-import { PhoneNumber } from "@clerk/express";
-import mongoose, { Schema } from "mongoose";
+import mongoose from "mongoose";
 
 const bookingSchema = new mongoose.Schema(
   {
     tourist: { type: String, ref: "User" },
-    tour: { type: Schema.Types.ObjectId, ref: "Tour" },
+    tour: { type: mongoose.Schema.Types.ObjectId, ref: "Tour" },
+    totalTourists: { type: Number, default: 1 },
     totalCost: { type: Number, required: true },
+    bookingPayment: { type: Number, required: true },
+    balance: {
+      type: Number,
+      required: true,
+    },
     mainTourist: {
       firstName: { type: String, required: true },
       surname: { type: String, required: true },
@@ -22,16 +27,16 @@ const bookingSchema = new mongoose.Schema(
       },
       passportNumber: {
         type: String,
-        required: [true, "Please provide you passport number"],
+        required: [true, "Please provide your passport number"],
       },
       nacionality: {
         type: String,
-        required: [true, "Nacionality is required"],
+        required: [true, "Nationality is required"],
       },
       language: { type: String },
       flightInformation: {
-        arrival: { time: { type: String }, flightNumber: { type: String } },
-        depature: { time: { type: String }, flightNumber: { type: String } },
+        arrival: { date: { type: Date }, flightNumber: { type: String } },
+        departure: { date: { type: Date }, flightNumber: { type: String } },
       },
       hotel: { type: String },
       pickup: {
@@ -47,7 +52,6 @@ const bookingSchema = new mongoose.Schema(
         nacionality: { type: String },
       },
     ],
-
     emergencyContact: {
       fullName: { type: String },
       relationship: { type: String },
@@ -56,30 +60,41 @@ const bookingSchema = new mongoose.Schema(
     comments: { type: String },
     checkIn: { type: Date },
     checkOut: { type: Date },
-    Balance: {
-      type: Number,
-      required: true,
-      default: function () {
-        return this.totalCost - this.bookingPayment;
-      },
-    },
     status: {
       type: String,
       enum: ["Completed", "Incoming", "Cancelled"],
       default: "Incoming",
     },
-    bookingPayment: { type: Number, required: true },
-    isPaid: { type: Boolean },
+    isPaid: { type: Boolean, default: false },
     stripe: {
       depositPaymentIntentId: { type: String },
       balancePaymentIntentId: { type: String },
       customerId: { type: String },
     },
   },
-
-  { timestamps: true }
+  {
+    timestamps: true,
+    // toJSON: { virtuals: true }, // Enable virtual fields in JSON output
+    // toObject: { virtuals: true }, // Also enable for toObject calls
+  }
 );
 
 const Booking = mongoose.model("Booking", bookingSchema);
 
 export default Booking;
+
+// Virtual property: calculate balance dynamically
+// bookingSchema.virtual("balance").get(function () {
+//   return this.totalCost - this.bookingPayment;
+// });
+
+// bookingSchema.pre("save", function (next) {
+//   this.Balance = this.totalCost - this.bookingPayment;
+//   next();
+// });
+
+// Pre-save hook: update Balance field before saving to DB
+// bookingSchema.pre("save", function (next) {
+//   this.Balance = this.totalCost - this.bookingPayment;
+//   next();
+// });
