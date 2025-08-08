@@ -1,7 +1,7 @@
-import Booking from "../models/booking.model.js";
+import BookingAdmin from "../models/bookingAdmin.model.js";
 
 //CREATE NEW BOOKING
-export const createBooking = async (req, res) => {
+export const createBookingAdmin = async (req, res) => {
   try {
     const {
       tour,
@@ -30,14 +30,11 @@ export const createBooking = async (req, res) => {
 
     // User info comes from protect middleware
     const totalFinalCost = totalCost * totalTourists;
-    const userId = req.user._id;
+
     const bookingPayment = Math.floor(totalFinalCost * 0.3);
     const balance = totalFinalCost - bookingPayment;
 
-    // const expireAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours from now
-    const expireAt = new Date(Date.now() + 2 * 60 * 1000); //for testing
-    const newBooking = new Booking({
-      tourist: userId,
+    const newBooking = new BookingAdmin({
       tour,
       totalTourists,
       totalCost: totalFinalCost,
@@ -49,7 +46,7 @@ export const createBooking = async (req, res) => {
       comments,
       checkIn,
       checkOut,
-      expireAt, // Set TTL date here
+
       isPaid: false, // default but explicit
     });
 
@@ -68,19 +65,12 @@ export const createBooking = async (req, res) => {
 };
 
 //GET ALL BOOKINGS
-export const getBookings = async (req, res) => {
+export const getBookingsAdmin = async (req, res) => {
   try {
-    const bookings = await Booking.find()
-      .populate("tourist")
-      .populate({
-        path: "tourist",
-        model: "User",
-      })
-      .populate("tour")
-      .populate({
-        path: "tour",
-        model: "Tour",
-      });
+    const bookings = await BookingAdmin.find().populate("tour").populate({
+      path: "tour",
+      model: "Tour",
+    });
 
     res.status(302).json({
       success: true,
@@ -95,14 +85,9 @@ export const getBookings = async (req, res) => {
 };
 
 //Get Booking By ID
-export const getBookingByID = async (req, res) => {
+export const getBookingByIDAdmin = async (req, res) => {
   try {
-    const booking = await Booking.findById(req.params.id)
-      .populate("tourist")
-      .populate({
-        path: "tourist",
-        mode: "User",
-      })
+    const booking = await BookingAdmin.findById(req.params.id)
       .populate("tour")
       .populate({
         path: "tour",
@@ -130,11 +115,15 @@ export const getBookingByID = async (req, res) => {
 
 //UPDATE BOOKING
 
-export const updateBooking = async (req, res) => {
+export const updateBookingAdmin = async (req, res) => {
   try {
-    const booking = await Booking.findByIdAndUpdate(req.params.id, req.body, {
-      new: true,
-    });
+    const booking = await BookingAdmin.findByIdAndUpdate(
+      req.params.id,
+      req.body,
+      {
+        new: true,
+      }
+    );
 
     if (!booking) {
       res.status(401).json({
@@ -155,31 +144,9 @@ export const updateBooking = async (req, res) => {
   }
 };
 
-//UPDATE STATUS WITH STRIPE
-// controllers/bookingController.js
-export const updateBookingPaymentStatus = async (req, res) => {
+export const deleteBookingAdmin = async (req, res) => {
   try {
-    const booking = await Booking.findByIdAndUpdate(
-      req.params.id,
-      { isPaid: true, $unset: { expireAt: "" } },
-      { new: true }
-    );
-
-    if (!booking) {
-      return res
-        .status(404)
-        .json({ success: false, message: "Booking not found" });
-    }
-
-    res.status(200).json({ success: true, data: booking });
-  } catch (error) {
-    res.status(500).json({ success: false, error: error.message });
-  }
-};
-
-export const deleteBooking = async (req, res) => {
-  try {
-    const booking = await Booking.findByIdAndDelete(req.params.id);
+    const booking = await BookingAdmin.findByIdAndDelete(req.params.id);
 
     if (!booking) {
       res.status(401).json({
