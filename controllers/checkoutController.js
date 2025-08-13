@@ -1,15 +1,14 @@
 import Stripe from "stripe";
+
 const stripe = new Stripe(process.env.STRIPE_API_SECRET);
 
 export const createCheckoutSession = async (req, res) => {
   try {
-    const { unitPrice, quantity = 1, tourId, userId } = req.body;
+    const { unitPrice, quantity = 1, tourId, userId, bookingId } = req.body;
 
     // Validate inputs
-    if (!unitPrice || quantity < 1 || !tourId || !userId) {
-      return res.status(400).json({
-        error: "Missing or invalid unitPrice, quantity, tourId, or userId",
-      });
+    if (!unitPrice || quantity < 1 || !tourId || !userId || !bookingId) {
+      return res.status(400).json({ error: "Missing required fields" });
     }
 
     // Calculate 30% deposit
@@ -35,6 +34,7 @@ export const createCheckoutSession = async (req, res) => {
       metadata: {
         tourId,
         userId,
+        bookingId,
         fullPricePerPerson: unitPrice, // optional: save full price
         chargedPercentage: "30%",
       },

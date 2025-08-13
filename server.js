@@ -10,8 +10,9 @@ import userRouter from "./routes/user.route.js";
 import adminRouter from "./routes/admin.routes.js";
 import tourRouter from "./routes/tour.route.js";
 import productRouter from "./routes/product.route.js";
-import { createCheckoutSession } from "./controllers/checkoutController.js";
+
 import bookingRouter from "./routes/booking.route.js";
+import checkoutRouter from "./routes/checkout.route.js";
 
 const app = express();
 
@@ -35,7 +36,7 @@ app.use("/api/v1/tour", tourRouter);
 
 //PRODUCTS FROM STRIPE ENPOINT
 app.use("/api/v1/products", productRouter);
-app.use("/create-checkout-session", createCheckoutSession);
+app.use("/api/v1/checkout", checkoutRouter);
 
 //BOOKING DOCUMENTS
 app.use("/api/v1/booking", clerkMiddleware(), bookingRouter);
