@@ -11,6 +11,7 @@ const tourSchema = new mongoose.Schema(
         public_id: { type: String, required: true },
       },
     ], // array of Cloudinary URLs
+    stripeProductId: { type: String, required: true },
   },
   { timestamps: true }
 );

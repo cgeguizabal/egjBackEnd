@@ -4,7 +4,7 @@ import cloudinary from "../utils/cloudinary.js";
 // Function to create a new tour with image upload
 export const createTour = async (req, res) => {
   try {
-    const { name, description, price } = req.body;
+    const { name, description, price, stripeProductId } = req.body;
 
     const files = req.files; // Uploaded files
 
@@ -31,6 +31,7 @@ export const createTour = async (req, res) => {
       description,
       price,
       images: imageUrls,
+      stripeProductId,
     });
 
     await tour.save();
