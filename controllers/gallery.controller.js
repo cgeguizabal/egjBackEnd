@@ -39,7 +39,10 @@ export const getGalleryImages = async (req, res) => {
     const totalPages = Math.ceil(totalImages / maxResults);
 
     const startIndex = (page - 1) * maxResults;
-    const pageResources = allResources.slice(startIndex, startIndex + maxResults);
+    const pageResources = allResources.slice(
+      startIndex,
+      startIndex + maxResults,
+    );
 
     // Get or create like counts for the returned images
     const publicIds = pageResources.map((r) => r.public_id);
@@ -85,7 +88,7 @@ export const likeGalleryImage = async (req, res) => {
     const doc = await GalleryImage.findOneAndUpdate(
       { public_id: decodedPublicId },
       { $inc: { likes: 1 } },
-      { new: true, upsert: true }
+      { new: true, upsert: true },
     );
 
     res.status(200).json({ success: true, likes: doc.likes });
@@ -103,7 +106,7 @@ export const unlikeGalleryImage = async (req, res) => {
     const doc = await GalleryImage.findOneAndUpdate(
       { public_id: decodedPublicId, likes: { $gt: 0 } },
       { $inc: { likes: -1 } },
-      { new: true, upsert: false }
+      { new: true, upsert: false },
     );
 
     const likes = doc ? doc.likes : 0;
