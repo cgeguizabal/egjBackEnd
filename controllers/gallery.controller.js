@@ -7,36 +7,33 @@ const IMAGES_PER_PAGE = 20;
 // GET /api/v1/gallery?page=1
 export const getGalleryImages = async (req, res) => {
   try {
-    const page = parseInt(req.query.page) || 1;
+    const page = parseInt(req.query.page, 10) || 1;
     const maxResults = IMAGES_PER_PAGE;
 
-    // Fetch all resources from the Gallery folder in Cloudinary
-    // next_cursor is used for Cloudinary pagination
     let allResources = [];
     let nextCursor = null;
 
-    // We need to collect enough to skip to the requested page
-    // Cloudinary paginates with cursors, so we gather page * maxResults items minimum
-    const targetCount = page * maxResults;
-
     do {
       const options = {
-        type: "upload",
-        prefix: GALLERY_FOLDER + "/",
         max_results: 500,
         resource_type: "image",
       };
-      if (nextCursor) options.next_cursor = nextCursor;
 
-      const result = await cloudinary.api.resources(options);
-      allResources = allResources.concat(result.resources);
+      if (nextCursor) {
+        options.next_cursor = nextCursor;
+      }
+
+      const result = await cloudinary.api.resources_by_asset_folder(
+        GALLERY_FOLDER,
+        options,
+      );
+
+      allResources = allResources.concat(result.resources || []);
       nextCursor = result.next_cursor || null;
-
-      if (allResources.length >= targetCount) break;
     } while (nextCursor);
 
     const totalImages = allResources.length;
-    const totalPages = Math.ceil(totalImages / maxResults);
+    const totalPages = Math.ceil(totalImages / maxResults) || 1;
 
     const startIndex = (page - 1) * maxResults;
     const pageResources = allResources.slice(
@@ -44,10 +41,12 @@ export const getGalleryImages = async (req, res) => {
       startIndex + maxResults,
     );
 
-    // Get or create like counts for the returned images
-    const publicIds = pageResources.map((r) => r.public_id);
+    const publicIds = pageResources.map((resource) => resource.public_id);
 
-    const likeDocs = await GalleryImage.find({ public_id: { $in: publicIds } });
+    const likeDocs = await GalleryImage.find({
+      public_id: { $in: publicIds },
+    });
+
     const likeMap = {};
     likeDocs.forEach((doc) => {
       likeMap[doc.public_id] = doc.likes;
@@ -74,44 +73,73 @@ export const getGalleryImages = async (req, res) => {
       },
     });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
   }
 };
 
-// POST /api/v1/gallery/:publicId/like
+// POST /api/v1/gallery/like
 export const likeGalleryImage = async (req, res) => {
   try {
-    const { publicId } = req.params;
-    // public_id may contain slashes (e.g. "Gallery/abc123"), decode it
-    const decodedPublicId = decodeURIComponent(publicId);
+    const { public_id } = req.body;
+
+    if (!public_id) {
+      return res.status(400).json({
+        success: false,
+        message: "public_id is required",
+      });
+    }
 
     const doc = await GalleryImage.findOneAndUpdate(
-      { public_id: decodedPublicId },
+      { public_id },
       { $inc: { likes: 1 } },
-      { new: true, upsert: true },
+      {
+        new: true,
+        upsert: true,
+        setDefaultsOnInsert: true,
+      },
     );
 
-    res.status(200).json({ success: true, likes: doc.likes });
+    res.status(200).json({
+      success: true,
+      likes: doc.likes,
+    });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
   }
 };
 
-// POST /api/v1/gallery/:publicId/unlike
+// POST /api/v1/gallery/unlike
 export const unlikeGalleryImage = async (req, res) => {
   try {
-    const { publicId } = req.params;
-    const decodedPublicId = decodeURIComponent(publicId);
+    const { public_id } = req.body;
+
+    if (!public_id) {
+      return res.status(400).json({
+        success: false,
+        message: "public_id is required",
+      });
+    }
 
     const doc = await GalleryImage.findOneAndUpdate(
-      { public_id: decodedPublicId, likes: { $gt: 0 } },
+      { public_id, likes: { $gt: 0 } },
       { $inc: { likes: -1 } },
-      { new: true, upsert: false },
+      { new: true },
     );
 
-    const likes = doc ? doc.likes : 0;
-    res.status(200).json({ success: true, likes });
+    res.status(200).json({
+      success: true,
+      likes: doc ? doc.likes : 0,
+    });
   } catch (err) {
-    res.status(500).json({ success: false, message: err.message });
+    res.status(500).json({
+      success: false,
+      message: err.message,
+    });
   }
 };

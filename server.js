@@ -22,32 +22,33 @@ await connectDB();
 app.use(cors());
 app.use(express.json());
 
-//ENDPOINTS
-app.use("/api/clerk", clerkWebhooks); // ENDPOINT WHICH IS CALLED IN CLERK
-app.use("/", healthRoutes); // ENDPOINT TO CHECK DATABASE CONNECTION
+// ENDPOINTS
+app.use("/api/clerk", clerkWebhooks);
+app.use("/", healthRoutes);
 
-//User
+// USER
 app.use("/api/v1/user", clerkMiddleware(), userRouter);
 
-//ENDPOINTS FOR ADMIN USAGE
+// ADMIN
 app.use("/api/v1/users", clerkMiddleware(), adminRouter);
 
-//ENDPOINT TOURS
+// TOURS
 app.use("/api/v1/tour", tourRouter);
 
-//PRODUCTS FROM STRIPE ENPOINT
+// PRODUCTS / CHECKOUT
 app.use("/api/v1/products", productRouter);
 app.use("/api/v1/checkout", checkoutRouter);
 
-//BOOKING DOCUMENTS
+// BOOKINGS
 app.use("/api/v1/booking", clerkMiddleware(), bookingRouter);
 
-//GALLERY IMAGES + LIKES
+// GALLERY
 app.use("/api/v1/gallery", galleryRouter);
 
-//dev enviroment
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`SERVER IS RUNNING ON PORT ${PORT}`));
 
-//Production enviroment
+app.listen(PORT, () => {
+  console.log(`SERVER IS RUNNING ON PORT ${PORT}`);
+});
+
 export default app;

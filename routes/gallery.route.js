@@ -8,7 +8,7 @@ import {
 const galleryRouter = express.Router();
 
 galleryRouter.get("/", getGalleryImages);
-galleryRouter.post("/:publicId/like", likeGalleryImage);
-galleryRouter.post("/:publicId/unlike", unlikeGalleryImage);
+galleryRouter.post("/like", likeGalleryImage);
+galleryRouter.post("/unlike", unlikeGalleryImage);
 
 export default galleryRouter;
