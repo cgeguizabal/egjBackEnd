@@ -7,10 +7,10 @@ const tourSchema = new mongoose.Schema(
     price: { type: Number, required: true },
     images: [
       {
-        url: { type: String, required: true },
-        public_id: { type: String, required: true },
+        url: { type: String, required: true }, // array of Cloudinary URLs
+        public_id: { type: String, required: true }, // array of Cloudinary URLs
       },
-    ], // array of Cloudinary URLs
+    ],
     stripeProductId: { type: String, required: true },
   },
   { timestamps: true }

@@ -13,6 +13,7 @@ import productRouter from "./routes/product.route.js";
 
 import bookingRouter from "./routes/booking.route.js";
 import checkoutRouter from "./routes/checkout.route.js";
+import galleryRouter from "./routes/gallery.route.js";
 
 const app = express();
 
@@ -40,6 +41,9 @@ app.use("/api/v1/checkout", checkoutRouter);
 
 //BOOKING DOCUMENTS
 app.use("/api/v1/booking", clerkMiddleware(), bookingRouter);
+
+//GALLERY IMAGES + LIKES
+app.use("/api/v1/gallery", galleryRouter);
 
 //dev enviroment
 const PORT = process.env.PORT || 3000;

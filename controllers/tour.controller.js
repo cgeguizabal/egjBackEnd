@@ -45,6 +45,7 @@ export const createTour = async (req, res) => {
   }
 };
 
+// Delete Tour
 export const deleteTour = async (req, res) => {
   try {
     const tour = await Tour.findById(req.params.id);
